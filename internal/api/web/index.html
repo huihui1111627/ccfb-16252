@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>枢纽机场行李报文中间件 · 全流程模拟</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">BHS</div>
+      <div>
+        <h1>枢纽机场行李报文中间件</h1>
+        <p>值机 · 分拣机 · 集装箱装卸 · 中转改签 · 关舱核对 全流程数字孪生</p>
+      </div>
+    </div>
+    <div class="clock-panel">
+      <div class="clock" id="clock">--:--</div>
+      <div class="day-progress"><i id="dayProgress"></i></div>
+      <div class="clock-sub"><span id="runState">连接中</span><span id="speedLabel"></span></div>
+    </div>
+    <div class="controls">
+      <button id="playBtn" class="btn">暂停</button>
+      <button class="btn speed" data-speed="6">6×</button>
+      <button class="btn speed" data-speed="18">18×</button>
+      <button class="btn speed" data-speed="60">60×</button>
+      <button id="finishBtn" class="btn primary">快进到日终</button>
+      <button id="resetBtn" class="btn ghost">重新生成一天</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="kpi-grid" id="kpiGrid"></section>
+
+    <section class="panel sorter-panel">
+      <div class="panel-head">
+        <div>
+          <h2>分拣线实时态势</h2>
+          <p>值机 BSM → 扫码/报文匹配 → 出口分配 → 装车扫描；红点为“有签无报文”，琥珀点为撤销召回。</p>
+        </div>
+        <div class="legend">
+          <span><i class="dot blue"></i>普通</span>
+          <span><i class="dot violet"></i>中转</span>
+          <span><i class="dot green"></i>已分出口</span>
+          <span><i class="dot red"></i>无报文</span>
+          <span><i class="dot amber"></i>召回</span>
+        </div>
+      </div>
+      <div class="sorter-line" id="sorterLine">
+        <div class="machine induction">值机收运 / 中转进料</div>
+        <div class="conveyor">
+          <div class="belt"></div>
+          <div class="scanner">RFID / 条码扫描器</div>
+          <div class="diverter">报文路由 / 分流器</div>
+          <div id="bagDots"></div>
+        </div>
+        <div class="machine chute-end">出口 / 集装箱装车</div>
+      </div>
+      <div class="chute-grid" id="chuteGrid"></div>
+    </section>
+
+    <div class="two-col">
+      <section class="panel">
+        <div class="panel-head">
+          <div><h2>航班运行与装载清单</h2><p>点击航班查看集装箱、层位、每件行李和关舱核对记录。</p></div>
+          <input id="flightSearch" class="input" placeholder="搜索航班号 / 目的地 / 登机口" />
+        </div>
+        <div class="table-wrap flight-table-wrap">
+          <table>
+            <thead><tr>
+              <th>航班</th><th>航线</th><th>计划/预计</th><th>口/出口</th><th>状态</th><th>核对</th><th>行李</th>
+            </tr></thead>
+            <tbody id="flightTbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <aside class="side-stack">
+        <section class="panel assurance">
+          <div class="panel-head"><div><h2>演练验收指标</h2><p>脚本注入异常，验证中间件规则是否全部闭环。</p></div></div>
+          <div id="assurance"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head"><div><h2>脚本场景</h2><p>未登机、换口换机、中转延误、改签取消、错装漏卸。</p></div></div>
+          <div class="scenario-list" id="scenarioList"></div>
+        </section>
+      </aside>
+    </div>
+
+    <div class="bottom-grid">
+      <section class="panel">
+        <div class="panel-head"><div><h2>告警与旅客通知</h2><p>所有关键业务动作均形成可追踪告警/通知。</p></div></div>
+        <div class="alert-list" id="alertList"></div>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><div><h2>行李报文总线</h2><p>BSM、扫描、路由、装卸、改签、核对等事件流。</p></div></div>
+        <div class="message-list" id="messageList"></div>
+      </section>
+    </div>
+  </main>
+
+  <div class="drawer-mask" id="drawerMask" hidden></div>
+  <aside class="drawer" id="flightDrawer" hidden>
+    <div class="drawer-head">
+      <div>
+        <h2 id="detailTitle">航班详情</h2>
+        <p id="detailSub"></p>
+      </div>
+      <button class="btn ghost" id="closeDrawer">关闭</button>
+    </div>
+    <div class="drawer-body" id="detailBody"><div class="loading">加载中…</div></div>
+  </aside>
+
+  <script src="/app.js"></script>
+</body>
+</html>
